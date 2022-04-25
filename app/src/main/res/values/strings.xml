@@ -1,4 +1,5 @@
 <resources>
-    <string name="app_name">Without Debug</string>
+    <string name="app_name">Payment Card Scanner</string>
+    <string name="scan_card_without_debug">Without Debug</string>
     <string name="scan_card_debug">With Debug</string>
 </resources>

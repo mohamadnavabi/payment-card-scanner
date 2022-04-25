@@ -15,7 +15,7 @@
         android:layout_marginEnd="16dp"
         android:gravity="center|center_vertical"
         android:onClick="onClick"
-        android:text="Scan Card"
+        android:text="@string/scan_card_without_debug"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
