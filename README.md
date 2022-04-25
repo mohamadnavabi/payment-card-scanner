@@ -41,7 +41,7 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 
 - ##### {Debug Mode}
 
-(1) Start scanner activity in debug mode:
+Start scanner activity in debug mode:
 ``` 
 ScanActivity.startDebug(this);
 ```
