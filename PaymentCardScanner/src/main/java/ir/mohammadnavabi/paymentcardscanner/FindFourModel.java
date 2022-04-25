@@ -28,7 +28,7 @@ class FindFourModel extends ImageClassifier {
 	final int rows = 34;
 	final int cols = 51;
 	final CGSize boxSize = new CGSize(80, 36);
-	final CGSize cardSize = new CGSize(480, 302);
+	final CGSize cardSize = new CGSize(480, 281);
 
 	/**
 	 * An array to hold inference results, to be feed into Tensorflow Lite as outputs. This isn't part

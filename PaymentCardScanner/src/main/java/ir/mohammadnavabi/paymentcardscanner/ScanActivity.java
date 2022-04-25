@@ -29,21 +29,6 @@ public class ScanActivity {
 	}
 
 	/**
-	 * Starts a scan activity and customizes the text that it displays.
-	 *
-	 * @param activity         the parent activity that is waiting for the result of the ScanActivity
-	 * @param scanCardText     the large text above the card rectangle
-	 * @param positionCardText the small text below the card rectangle
-	 */
-	public static void start(@NonNull Activity activity, String scanCardText, String positionCardText) {
-		ScanBaseActivity.warmUp(activity.getApplicationContext());
-		Intent intent = new Intent(activity, ScanActivityImpl.class);
-		intent.putExtra(ScanActivityImpl.SCAN_CARD_TEXT, scanCardText);
-		intent.putExtra(ScanActivityImpl.POSITION_CARD_TEXT, positionCardText);
-		activity.startActivityForResult(intent, REQUEST_CODE);
-	}
-
-	/**
 	 * Initializes the machine learning models and GPU hardware for faster scan performance.
 	 * <p>
 	 * This optional static method initializes the machine learning models and GPU hardware in a

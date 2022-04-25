@@ -56,7 +56,6 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 	private HashMap<String, Integer> numberResults = new HashMap<>();
 	private HashMap<Expiry, Integer> expiryResults = new HashMap<>();
 	private long firstResultMs = 0;
-	private int mFlashlightId;
 	private int mCardNumberId;
 	private int mExpiryId;
 	private int mTextureId;
@@ -113,7 +112,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 			view.getLocationInWindow(xy);
 
 			// convert from DP to pixels
-			int radius = (int) (11 * Resources.getSystem().getDisplayMetrics().density);
+			int radius = (int) (15 * Resources.getSystem().getDisplayMetrics().density);
 			RectF rect = new RectF(xy[0], xy[1],
 					xy[0] + view.getWidth(),
 					xy[1] + view.getHeight());
@@ -237,16 +236,11 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 		super.onDestroy();
 	}
 
-	public void setViewIds(int flashlightId, int cardRectangleId, int overlayId, int textureId,
+	public void setViewIds(int cardRectangleId, int overlayId, int textureId,
 						   int cardNumberId, int expiryId) {
-		mFlashlightId = flashlightId;
 		mTextureId = textureId;
 		mCardNumberId = cardNumberId;
 		mExpiryId = expiryId;
-		View flashlight = findViewById(flashlightId);
-		if (flashlight != null) {
-			flashlight.setOnClickListener(this);
-		}
 		findViewById(cardRectangleId).getViewTreeObserver()
 				.addOnGlobalLayoutListener(new MyGlobalListenerClass(cardRectangleId, overlayId));
 	}
@@ -350,7 +344,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 
 	@Override
 	public void onClick(View view) {
-		if (mCamera != null && mFlashlightId == view.getId()) {
+		if (mCamera != null) {
 			Camera.Parameters parameters = mCamera.getParameters();
 			if (parameters.getFlashMode().equals(Camera.Parameters.FLASH_MODE_TORCH)) {
 				parameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
@@ -360,7 +354,6 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 			mCamera.setParameters(parameters);
 			mCamera.startPreview();
 		}
-
 	}
 
 	@Override

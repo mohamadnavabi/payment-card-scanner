@@ -25,13 +25,10 @@ public class LaunchActivity extends AppCompatActivity implements View.OnClickLis
 
 	@Override
 	public void onClick(View v) {
-		if (v.getId() == R.id.scan_button) {
-			ScanActivity.start(this);
-		} else if (v.getId() == R.id.scanCardDebug) {
+		if (v.getId() == R.id.scanCardDebug) {
 			ScanActivity.startDebug(this);
-		} else if (v.getId() == R.id.scanCardAltText) {
-			ScanActivity.start(this, "Debit Card Scan",
-					"Position your card in the frame so the card number is visible");
+		} else {
+			ScanActivity.start(this);
 		}
 	}
 

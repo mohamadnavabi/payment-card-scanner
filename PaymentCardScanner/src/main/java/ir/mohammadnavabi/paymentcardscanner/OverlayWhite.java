@@ -5,8 +5,8 @@ import android.util.AttributeSet;
 
 public class OverlayWhite extends Overlay {
 
-	int backgroundColorId = R.color.irdcs_white_background;
-	int cornerColorId = R.color.irdcs_gray;
+	int backgroundColorId = R.color.white_background;
+	int cornerColorId = R.color.gray;
 
 	public OverlayWhite(Context context, AttributeSet attrs) {
 		super(context, attrs);

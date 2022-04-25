@@ -4,6 +4,10 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="../../../../layout/custom_preview.xml" value="0.27239583333333334" />
+        <entry key="PaymentCardScanner/src/main/res/drawable/card_rectangle.xml" value="0.26197916666666665" />
+        <entry key="PaymentCardScanner/src/main/res/drawable/card_scan_close_button.xml" value="0.26197916666666665" />
+        <entry key="PaymentCardScanner/src/main/res/drawable/card_scan_torch_button.xml" value="0.26197916666666665" />
+        <entry key="PaymentCardScanner/src/main/res/drawable/close_white_pressed.xml" value="0.26197916666666665" />
         <entry key="PaymentCardScanner/src/main/res/layout/activity_scan_card.xml" value="0.20244565217391305" />
         <entry key="PaymentCardScanner/src/main/res/layout/irdcs_activity_scan_card.xml" value="0.20244565217391305" />
         <entry key="app/src/main/res/layout/activity_launch.xml" value="0.2074468085106383" />

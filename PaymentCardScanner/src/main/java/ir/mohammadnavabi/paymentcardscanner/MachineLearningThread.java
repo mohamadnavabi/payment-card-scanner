@@ -188,22 +188,22 @@ class MachineLearningThread implements Runnable {
 
 		if (sensorOrientation == 0) {
 			w = bitmap.getWidth();
-			h = isOcr ? w * 302.0 / 480.0 : w;
+			h = isOcr ? w * 281.0 / 480.0 : w;
 			x = 0;
 			y = (int) Math.round(((double) bitmap.getHeight()) * roiCenterYRatio - h * 0.5);
 		} else if (sensorOrientation == 90) {
 			h = bitmap.getHeight();
-			w = isOcr ? h * 302.0 / 480.0 : h;
+			w = isOcr ? h * 281.0 / 480.0 : h;
 			y = 0;
 			x = (int) Math.round(((double) bitmap.getWidth()) * roiCenterYRatio - w * 0.5);
 		} else if (sensorOrientation == 180) {
 			w = bitmap.getWidth();
-			h = isOcr ? w * 302.0 / 480.0 : w;
+			h = isOcr ? w * 281.0 / 480.0 : w;
 			x = 0;
 			y = (int) Math.round(((double) bitmap.getHeight()) * (1.0 - roiCenterYRatio) - h * 0.5);
 		} else {
 			h = bitmap.getHeight();
-			w = isOcr ? h * 302.0 / 480.0 : h;
+			w = isOcr ? h * 281.0 / 480.0 : h;
 			x = (int) Math.round(((double) bitmap.getWidth()) * (1.0 - roiCenterYRatio) - w * 0.5);
 			y = 0;
 		}
@@ -310,11 +310,11 @@ class MachineLearningThread implements Runnable {
 		} else if (args.mBitmap != null) {
 			bm = args.mBitmap;
 		} else {
-			bm = Bitmap.createBitmap(480, 302, Bitmap.Config.ARGB_8888);
+			bm = Bitmap.createBitmap(480, 281, Bitmap.Config.ARGB_8888);
 			Canvas canvas = new Canvas(bm);
 			Paint paint = new Paint();
 			paint.setColor(Color.GRAY);
-			canvas.drawRect(0.0f, 0.0f, 480.0f, 302.0f, paint);
+			canvas.drawRect(0.0f, 0.0f, 480.0f, 281.0f, paint);
 		}
 
 		if (args.mIsOcr) {

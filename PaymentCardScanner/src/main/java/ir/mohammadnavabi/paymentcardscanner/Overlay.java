@@ -21,7 +21,7 @@ public class Overlay extends View {
 
 	int cornerDp = 6;
 
-	boolean drawCorners = true;
+	boolean drawCorners = false;
 
 	//private Paint paintAntiAlias = new Paint(Paint.ANTI_ALIAS_FLAG);
 	//private Paint paint = new Paint();
@@ -32,11 +32,11 @@ public class Overlay extends View {
 	}
 
 	protected int getBackgroundColorId() {
-		return R.color.irdcs_camera_background;
+		return R.color.camera_background;
 	}
 
 	protected int getCornerColorId() {
-		return R.color.irdcs_corner_color;
+		return R.color.corner_color;
 	}
 
 	public void setCircle(RectF rect, int radius) {
