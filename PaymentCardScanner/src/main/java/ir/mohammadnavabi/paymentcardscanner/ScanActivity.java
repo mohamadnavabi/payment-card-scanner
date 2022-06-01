@@ -32,8 +32,8 @@ public class ScanActivity {
 	 * Starts a scan activity and customizes the text that it displays.
 	 *
 	 * @param activity         the parent activity that is waiting for the result of the ScanActivity
-	 * @param scanCardText     the large text above the card rectangle
-	 * @param positionCardText the small text below the card rectangle
+	 * @param topText     the large text above the card rectangle
+	 * @param bottomText the small text below the card rectangle
 	 */
 	public static void start(@NonNull Activity activity, String topText, String bottomText) {
 		ScanBaseActivity.warmUp(activity.getApplicationContext());
