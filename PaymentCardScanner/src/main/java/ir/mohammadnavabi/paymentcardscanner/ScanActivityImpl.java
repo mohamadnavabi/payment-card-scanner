@@ -18,6 +18,9 @@ import java.util.List;
 public class ScanActivityImpl extends ScanBaseActivity {
 
 	private static final String TAG = "ScanActivityImpl";
+	
+	public static final String SCAN_CARD_TEXT = "topText";
+	public static final String POSITION_CARD_TEXT = "bottomText";
 
 	public static final String RESULT_CARD_NUMBER = "cardNumber";
 	public static final String RESULT_EXPIRY_MONTH = "expiryMonth";
@@ -29,9 +32,19 @@ public class ScanActivityImpl extends ScanBaseActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_scan_card);
+		setContentView(R.layout.irdcs_activity_scan_card);
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+		String scanCardText = getIntent().getStringExtra(SCAN_CARD_TEXT);
+		if (!TextUtils.isEmpty(scanCardText)) {
+			((TextView) findViewById(R.id.scanCard)).setText(scanCardText);
+		}
+
+		String positionCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
+		if (!TextUtils.isEmpty(positionCardText)) {
+			((TextView) findViewById(R.id.positionCard)).setText(positionCardText);
+		}
+
+		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
 				requestPermissions(new String[]{Manifest.permission.CAMERA}, 110);
 			} else {
@@ -54,7 +67,7 @@ public class ScanActivityImpl extends ScanBaseActivity {
 		if (!mInDebugMode) {
 			mDebugImageView.setVisibility(View.INVISIBLE);
 		}
-		setViewIds(R.id.cardRectangle, R.id.shadedBackground, R.id.texture,
+		setViewIds(R.id.flashlightButton, R.id.cardRectangle, R.id.shadedBackground, R.id.texture,
 				R.id.cardNumber, R.id.expiry);
 	}
 
