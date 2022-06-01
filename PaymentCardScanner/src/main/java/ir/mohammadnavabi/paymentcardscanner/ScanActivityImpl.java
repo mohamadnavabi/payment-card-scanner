@@ -32,16 +32,16 @@ public class ScanActivityImpl extends ScanBaseActivity {
 
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.irdcs_activity_scan_card);
+		setContentView(R.layout.activity_scan_card);
 
-		String scanCardText = getIntent().getStringExtra(SCAN_CARD_TEXT);
-		if (!TextUtils.isEmpty(scanCardText)) {
-			((TextView) findViewById(R.id.scanCard)).setText(scanCardText);
+		String topCardText = getIntent().getStringExtra(SCAN_CARD_TEXT);
+		if (!TextUtils.isEmpty(topCardText)) {
+			((TextView) findViewById(R.id.topText)).setText(topCardText);
 		}
 
-		String positionCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
-		if (!TextUtils.isEmpty(positionCardText)) {
-			((TextView) findViewById(R.id.positionCard)).setText(positionCardText);
+		String bottomCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
+		if (!TextUtils.isEmpty(bottomCardText)) {
+			((TextView) findViewById(R.id.bottomText)).setText(bottomCardText);
 		}
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
