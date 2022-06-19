@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
@@ -97,4 +98,7 @@ public class ScanActivityImpl extends ScanBaseActivity {
 		super.onPrediction(number, expiry, bitmap, digitBoxes, expiryBox);
 	}
 
+	public final void setTopTextFont(Typeface fontFamily) {
+		((TextView) findViewById(R.id.topText)).setTypeface(fontFamily);
+	}
 }

@@ -3,6 +3,7 @@ package ir.mohammadnavabi.paymentcardscanner;
 import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
+import android.graphics.Typeface;
 
 import androidx.annotation.NonNull;
 
@@ -35,11 +36,15 @@ public class ScanActivity {
 	 * @param topText     the large text above the card rectangle
 	 * @param bottomText the small text below the card rectangle
 	 */
-	public static void start(@NonNull Activity activity, String topText, String bottomText) {
+	public static void start(@NonNull Activity activity, String topText, String bottomText, Typeface fontFamily) {
 		ScanBaseActivity.warmUp(activity.getApplicationContext());
 		Intent intent = new Intent(activity, ScanActivityImpl.class);
 		intent.putExtra(ScanActivityImpl.SCAN_CARD_TEXT, topText);
 		intent.putExtra(ScanActivityImpl.POSITION_CARD_TEXT, bottomText);
+		if (fontFamily != null) {
+			ScanActivityImpl scanActivity = new ScanActivityImpl();
+			scanActivity.setTopTextFont(fontFamily);
+		}
 		activity.startActivityForResult(intent, REQUEST_CODE);
 	}
 
