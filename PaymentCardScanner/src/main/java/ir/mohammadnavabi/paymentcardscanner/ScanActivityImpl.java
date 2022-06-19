@@ -22,6 +22,7 @@ public class ScanActivityImpl extends ScanBaseActivity {
 	
 	public static final String SCAN_CARD_TEXT = "topText";
 	public static final String POSITION_CARD_TEXT = "bottomText";
+	public static Typeface topTextTypeface = null;
 
 	public static final String RESULT_CARD_NUMBER = "cardNumber";
 	public static final String RESULT_EXPIRY_MONTH = "expiryMonth";
@@ -37,12 +38,16 @@ public class ScanActivityImpl extends ScanBaseActivity {
 
 		String topCardText = getIntent().getStringExtra(SCAN_CARD_TEXT);
 		if (!TextUtils.isEmpty(topCardText)) {
-			((TextView) findViewById(R.id.topText)).setText(topCardText);
+			TextView topText = (TextView) findViewById(R.id.topText);
+			topText.setText(topCardText);
+			topText.setTypeface(topTextTypeface);
 		}
 
 		String bottomCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
 		if (!TextUtils.isEmpty(bottomCardText)) {
-			((TextView) findViewById(R.id.bottomText)).setText(bottomCardText);
+			TextView bottomText = (TextView) findViewById(R.id.topText);
+			bottomText.setText(bottomCardText);
+			bottomText.setTypeface(topTextTypeface);
 		}
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
@@ -96,10 +101,5 @@ public class ScanActivityImpl extends ScanBaseActivity {
 		}
 
 		super.onPrediction(number, expiry, bitmap, digitBoxes, expiryBox);
-	}
-
-	public final void setFont(Typeface typeface) {
-		Log.d("hereee2", String.valueOf(typeface));
-//		((TextView) findViewById(R.id.topText)).setTypeface(typeface);
 	}
 }
