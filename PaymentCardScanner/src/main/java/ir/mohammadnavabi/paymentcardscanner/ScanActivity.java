@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -43,7 +44,7 @@ public class ScanActivity {
 		intent.putExtra(ScanActivityImpl.POSITION_CARD_TEXT, bottomText);
 		if (fontFamily != null) {
 			ScanActivityImpl scanActivity = new ScanActivityImpl();
-			scanActivity.setTopTextFont(fontFamily);
+			scanActivity.setFont(fontFamily);
 		}
 		activity.startActivityForResult(intent, REQUEST_CODE);
 	}
