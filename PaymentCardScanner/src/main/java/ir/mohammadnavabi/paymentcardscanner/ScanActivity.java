@@ -29,7 +29,7 @@ public class ScanActivity {
 		Intent intent = new Intent(activity, ScanActivityImpl.class);
 		activity.startActivityForResult(intent, REQUEST_CODE);
 	}
-	
+
 	/**
 	 * Starts a scan activity and customizes the text that it displays.
 	 *
@@ -37,14 +37,30 @@ public class ScanActivity {
 	 * @param topText     the large text above the card rectangle
 	 * @param bottomText the small text below the card rectangle
 	 */
-	public static void start(@NonNull Activity activity, String topText, String bottomText, Typeface typeface) {
+	public static void start(@NonNull Activity activity, String topText, String bottomText) {
 		ScanBaseActivity.warmUp(activity.getApplicationContext());
 		Intent intent = new Intent(activity, ScanActivityImpl.class);
 		intent.putExtra(ScanActivityImpl.SCAN_CARD_TEXT, topText);
 		intent.putExtra(ScanActivityImpl.POSITION_CARD_TEXT, bottomText);
-		if (typeface != null) {
-			ScanActivityImpl.topTextTypeface = typeface;
-		}
+		activity.startActivityForResult(intent, REQUEST_CODE);
+	}
+	
+	/**
+	 * Starts a scan activity and customizes the text that it displays.
+	 *
+	 * @param activity         the parent activity that is waiting for the result of the ScanActivity
+	 * @param topText     the large text above the card rectangle
+	 * @param bottomText the small text below the card rectangle
+	 * @param topTextTypeface typeface for topText
+	 * @param bottomTextTypeface typeface for bottomText
+	 */
+	public static void start(@NonNull Activity activity, String topText, String bottomText, Typeface topTextTypeface, Typeface bottomTextTypeface) {
+		ScanBaseActivity.warmUp(activity.getApplicationContext());
+		Intent intent = new Intent(activity, ScanActivityImpl.class);
+		intent.putExtra(ScanActivityImpl.SCAN_CARD_TEXT, topText);
+		intent.putExtra(ScanActivityImpl.POSITION_CARD_TEXT, bottomText);
+		ScanActivityImpl.topTextTypeface = topTextTypeface;
+		ScanActivityImpl.bottomTextTypeface = bottomTextTypeface;
 		activity.startActivityForResult(intent, REQUEST_CODE);
 	}
 

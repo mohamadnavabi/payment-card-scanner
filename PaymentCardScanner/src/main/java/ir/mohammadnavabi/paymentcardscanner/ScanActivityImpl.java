@@ -23,6 +23,7 @@ public class ScanActivityImpl extends ScanBaseActivity {
 	public static final String SCAN_CARD_TEXT = "topText";
 	public static final String POSITION_CARD_TEXT = "bottomText";
 	public static Typeface topTextTypeface = null;
+	public static Typeface bottomTextTypeface = null;
 
 	public static final String RESULT_CARD_NUMBER = "cardNumber";
 	public static final String RESULT_EXPIRY_MONTH = "expiryMonth";
@@ -45,9 +46,9 @@ public class ScanActivityImpl extends ScanBaseActivity {
 
 		String bottomCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
 		if (!TextUtils.isEmpty(bottomCardText)) {
-			TextView bottomText = (TextView) findViewById(R.id.topText);
+			TextView bottomText = (TextView) findViewById(R.id.bottomText);
 			bottomText.setText(bottomCardText);
-			bottomText.setTypeface(topTextTypeface);
+			bottomText.setTypeface(bottomTextTypeface);
 		}
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
