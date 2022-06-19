@@ -98,7 +98,8 @@ public class ScanActivityImpl extends ScanBaseActivity {
 		super.onPrediction(number, expiry, bitmap, digitBoxes, expiryBox);
 	}
 
-	public final void setTopTextFont(Typeface fontFamily) {
-		((TextView) findViewById(R.id.topText)).setTypeface(fontFamily);
+	public final void setFont(Typeface typeface) {
+		Log.d("hereee2", String.valueOf(typeface));
+//		((TextView) findViewById(R.id.topText)).setTypeface(typeface);
 	}
 }
