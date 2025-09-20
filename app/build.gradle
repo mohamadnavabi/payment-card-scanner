@@ -4,7 +4,7 @@ plugins {
 
 android {
     namespace 'ir.mohammadnavabi.paymentcardscannerexample'
-    compileSdk 34
+    compileSdk 35
 
     defaultConfig {
         applicationId "ir.mohammadnavabi.paymentcardscannerexample"

@@ -35,8 +35,8 @@ class MachineLearningThread implements Runnable {
 		private final File mObjectDetectFile;
 
 		RunArguments(byte[] frameBytes, int width, int height, int format,
-					 int sensorOrientation, OnScanListener scanListener, Context context,
-					 float roiCenterYRatio) {
+				int sensorOrientation, OnScanListener scanListener, Context context,
+				float roiCenterYRatio) {
 			mFrameBytes = frameBytes;
 			mBitmap = null;
 			mWidth = width;
@@ -52,8 +52,8 @@ class MachineLearningThread implements Runnable {
 		}
 
 		RunArguments(byte[] frameBytes, int width, int height, int format,
-					 int sensorOrientation, OnObjectListener objectListener, Context context,
-					 float roiCenterYRatio, File objectDetectFile) {
+				int sensorOrientation, OnObjectListener objectListener, Context context,
+				float roiCenterYRatio, File objectDetectFile) {
 			mFrameBytes = frameBytes;
 			mBitmap = null;
 			mWidth = width;
@@ -86,7 +86,7 @@ class MachineLearningThread implements Runnable {
 
 		// this should only be used for testing
 		RunArguments(Bitmap bitmap, OnObjectListener objectListener, Context context,
-					 File objectDetectFile) {
+				File objectDetectFile) {
 			mFrameBytes = null;
 			mBitmap = bitmap;
 			mWidth = bitmap == null ? 0 : bitmap.getWidth();
@@ -125,7 +125,7 @@ class MachineLearningThread implements Runnable {
 	}
 
 	synchronized void post(byte[] bytes, int width, int height, int format, int sensorOrientation,
-						   OnScanListener scanListener, Context context, float roiCenterYRatio) {
+			OnScanListener scanListener, Context context, float roiCenterYRatio) {
 		RunArguments args = new RunArguments(bytes, width, height, format, sensorOrientation,
 				scanListener, context, roiCenterYRatio);
 		queue.push(args);
@@ -133,22 +133,23 @@ class MachineLearningThread implements Runnable {
 	}
 
 	synchronized void post(Bitmap bitmap, OnObjectListener objectListener, Context context,
-						   File objectDetectFile) {
+			File objectDetectFile) {
 		RunArguments args = new RunArguments(bitmap, objectListener, context, objectDetectFile);
 		queue.push(args);
 		notify();
 	}
 
 	synchronized void post(byte[] bytes, int width, int height, int format, int sensorOrientation,
-						   OnObjectListener objectListener, Context context, float roiCenterYRatio,
-						   File objectDetectFile) {
+			OnObjectListener objectListener, Context context, float roiCenterYRatio,
+			File objectDetectFile) {
 		RunArguments args = new RunArguments(bytes, width, height, format, sensorOrientation,
 				objectListener, context, roiCenterYRatio, objectDetectFile);
 		queue.push(args);
 		notify();
 	}
 
-	// from https://stackoverflow.com/questions/43623817/android-yuv-nv12-to-rgb-conversion-with-renderscript
+	// from
+	// https://stackoverflow.com/questions/43623817/android-yuv-nv12-to-rgb-conversion-with-renderscript
 	// interestingly the question had the right algorithm for our format (yuv nv21)
 	private Bitmap YUV_toRGB(byte[] yuvByteArray, int W, int H, Context ctx) {
 		RenderScript rs = RenderScript.create(ctx);
@@ -176,36 +177,52 @@ class MachineLearningThread implements Runnable {
 	}
 
 	private Bitmap getBitmap(byte[] bytes, int width, int height, int format, int sensorOrientation,
-							 float roiCenterYRatio, Context ctx, boolean isOcr) {
+			float roiCenterYRatio, Context ctx, boolean isOcr) {
 		final Bitmap bitmap = YUV_toRGB(bytes, width, height, ctx);
 
 		sensorOrientation = sensorOrientation % 360;
+
+		// Calculate display frame dimensions based on the card rectangle aspect ratio
+		// (10:17)
+		// This matches the layout constraint:
+		// app:layout_constraintDimensionRatio="H,10:17"
+		double displayFrameAspectRatio = 17.0 / 10.0; // height/width ratio
 
 		double h;
 		double w;
 		int x;
 		int y;
 
+		// For rotated cards (90 and 270 degrees), we need to adjust the ROI calculation
+		// to better match the display frame
 		if (sensorOrientation == 0) {
 			w = bitmap.getWidth();
-			h = isOcr ? w * 281.0 / 480.0 : w;
+			// Use display frame aspect ratio instead of hardcoded OCR ratio
+			h = w * displayFrameAspectRatio;
 			x = 0;
 			y = (int) Math.round(((double) bitmap.getHeight()) * roiCenterYRatio - h * 0.5);
 		} else if (sensorOrientation == 90) {
 			h = bitmap.getHeight();
-			w = isOcr ? h * 281.0 / 480.0 : h;
+			// Use display frame aspect ratio instead of hardcoded OCR ratio
+			w = h / displayFrameAspectRatio;
 			y = 0;
+			// For 90-degree rotation, use roiCenterYRatio for x positioning to match
+			// display
 			x = (int) Math.round(((double) bitmap.getWidth()) * roiCenterYRatio - w * 0.5);
 		} else if (sensorOrientation == 180) {
 			w = bitmap.getWidth();
-			h = isOcr ? w * 281.0 / 480.0 : w;
+			// Use display frame aspect ratio instead of hardcoded OCR ratio
+			h = w * displayFrameAspectRatio;
 			x = 0;
 			y = (int) Math.round(((double) bitmap.getHeight()) * (1.0 - roiCenterYRatio) - h * 0.5);
 		} else {
 			h = bitmap.getHeight();
-			w = isOcr ? h * 281.0 / 480.0 : h;
-			x = (int) Math.round(((double) bitmap.getWidth()) * (1.0 - roiCenterYRatio) - w * 0.5);
+			// Use display frame aspect ratio instead of hardcoded OCR ratio
+			w = h / displayFrameAspectRatio;
 			y = 0;
+			// For 270-degree rotation, use roiCenterYRatio for x positioning to match
+			// display
+			x = (int) Math.round(((double) bitmap.getWidth()) * (1.0 - roiCenterYRatio) - w * 0.5);
 		}
 
 		// make sure that our crop stays within the image
@@ -231,6 +248,16 @@ class MachineLearningThread implements Runnable {
 
 		croppedBitmap.recycle();
 		bitmap.recycle();
+
+		// Resize the final bitmap to match the TFLite model input size while preserving
+		// aspect ratio (17:10 = 1.7:1)
+		// This ensures the model gets the expected input size without crashing
+		if (isOcr) {
+			// Use dimensions that maintain the exact 17:10 ratio for display consistency
+			Bitmap resizedBitmap = Bitmap.createScaledBitmap(bm, 480, 282, true);
+			bm.recycle();
+			return resizedBitmap;
+		}
 
 		return bm;
 	}

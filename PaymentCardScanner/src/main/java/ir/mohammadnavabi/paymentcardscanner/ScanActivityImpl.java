@@ -19,7 +19,7 @@ import java.util.List;
 public class ScanActivityImpl extends ScanBaseActivity {
 
 	private static final String TAG = "ScanActivityImpl";
-	
+
 	public static final String SCAN_CARD_TEXT = "topText";
 	public static final String POSITION_CARD_TEXT = "bottomText";
 	public static Typeface topTextTypeface = null;
@@ -34,26 +34,44 @@ public class ScanActivityImpl extends ScanBaseActivity {
 	private static long startTimeMs = 0;
 
 	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_scan_card);
+		try {
+			Log.d(TAG, "ScanActivityImpl onCreate started");
+			super.onCreate(savedInstanceState);
+			Log.d(TAG, "setContentView called");
+			setContentView(R.layout.activity_scan_card);
+			Log.d(TAG, "Layout loaded successfully");
+		} catch (Exception e) {
+			Log.e(TAG, "Error in onCreate: " + e.getMessage());
+			e.printStackTrace();
+			finish();
+			return;
+		}
 
 		String topCardText = getIntent().getStringExtra(SCAN_CARD_TEXT);
 		if (!TextUtils.isEmpty(topCardText)) {
 			TextView topText = (TextView) findViewById(R.id.topText);
-			topText.setText(topCardText);
-			topText.setTypeface(topTextTypeface);
+			if (topText != null) {
+				topText.setText(topCardText);
+				if (topTextTypeface != null) {
+					topText.setTypeface(topTextTypeface);
+				}
+			}
 		}
 
 		String bottomCardText = getIntent().getStringExtra(POSITION_CARD_TEXT);
 		if (!TextUtils.isEmpty(bottomCardText)) {
 			TextView bottomText = (TextView) findViewById(R.id.bottomText);
-			bottomText.setText(bottomCardText);
-			bottomText.setTypeface(bottomTextTypeface);
+			if (bottomText != null) {
+				bottomText.setText(bottomCardText);
+				if (bottomTextTypeface != null) {
+					bottomText.setTypeface(bottomTextTypeface);
+				}
+			}
 		}
 
 		if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 			if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
-				requestPermissions(new String[]{Manifest.permission.CAMERA}, 110);
+				requestPermissions(new String[] { Manifest.permission.CAMERA }, 110);
 			} else {
 				mIsPermissionCheckDone = true;
 			}
@@ -62,20 +80,27 @@ public class ScanActivityImpl extends ScanBaseActivity {
 			mIsPermissionCheckDone = true;
 		}
 
-		findViewById(R.id.closeButton).setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				onBackPressed();
-			}
-		});
+		View closeButton = findViewById(R.id.closeButton);
+		if (closeButton != null) {
+			closeButton.setOnClickListener(new View.OnClickListener() {
+				@Override
+				public void onClick(View v) {
+					onBackPressed();
+				}
+			});
+		}
 
 		mDebugImageView = findViewById(R.id.debugImageView);
 		mInDebugMode = getIntent().getBooleanExtra("debug", false);
-		if (!mInDebugMode) {
+		if (!mInDebugMode && mDebugImageView != null) {
 			mDebugImageView.setVisibility(View.INVISIBLE);
 		}
+
+		Log.d(TAG, "Setting up view IDs");
 		setViewIds(R.id.cardRectangle, R.id.shadedBackground, R.id.texture,
 				R.id.cardNumber, R.id.expiry);
+
+		Log.d(TAG, "ScanActivityImpl onCreate completed successfully");
 	}
 
 	@Override
@@ -90,14 +115,25 @@ public class ScanActivityImpl extends ScanBaseActivity {
 
 	@Override
 	public void onPrediction(final String number, final Expiry expiry, final Bitmap bitmap,
-							 final List<DetectedBox> digitBoxes, final DetectedBox expiryBox) {
+			final List<DetectedBox> digitBoxes, final DetectedBox expiryBox) {
 		if (mInDebugMode) {
-			Log.d("ASDASDASDASDASD", String.valueOf(bitmap.getHeight()));
-			mDebugImageView.setImageBitmap(ImageUtils.drawBoxesOnImage(bitmap, digitBoxes, expiryBox));
-			Log.d(TAG, "Prediction (ms): " + (SystemClock.uptimeMillis() - mPredictionStartMs));
-			if (startTimeMs != 0) {
-				Log.d(TAG, "time to first prediction: " + (SystemClock.uptimeMillis() - startTimeMs));
-				startTimeMs = 0;
+			try {
+				// Temporarily disable debug box drawing to isolate the crash
+				Log.d(TAG, "Debug mode enabled - bitmap size: " + bitmap.getWidth() + "x" + bitmap.getHeight());
+
+				// Simple debug without box drawing
+				if (mDebugImageView != null && bitmap != null) {
+					mDebugImageView.setImageBitmap(bitmap);
+				}
+
+				Log.d(TAG, "Prediction (ms): " + (SystemClock.uptimeMillis() - mPredictionStartMs));
+				if (startTimeMs != 0) {
+					Log.d(TAG, "time to first prediction: " + (SystemClock.uptimeMillis() - startTimeMs));
+					startTimeMs = 0;
+				}
+			} catch (Exception e) {
+				Log.e(TAG, "Error in debug mode: " + e.getMessage());
+				e.printStackTrace();
 			}
 		}
 

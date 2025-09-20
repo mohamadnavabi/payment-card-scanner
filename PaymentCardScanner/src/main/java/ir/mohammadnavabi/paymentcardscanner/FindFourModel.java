@@ -31,7 +31,8 @@ class FindFourModel extends ImageClassifier {
 	final CGSize cardSize = new CGSize(480, 281);
 
 	/**
-	 * An array to hold inference results, to be feed into Tensorflow Lite as outputs. This isn't part
+	 * An array to hold inference results, to be feed into Tensorflow Lite as
+	 * outputs. This isn't part
 	 * of the super class, because we need a primitive array here.
 	 */
 	private float[][][][] labelProbArray;
