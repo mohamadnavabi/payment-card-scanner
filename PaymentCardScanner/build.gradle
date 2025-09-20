@@ -1,5 +1,7 @@
 plugins {
     id 'com.android.library'
+    id 'maven-publish'
+    id 'signing'
 }
 
 android {
@@ -10,7 +12,7 @@ android {
         minSdkVersion 21
         targetSdk 34
         versionCode 1
-        versionName "1.0"
+        versionName "1.2.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         consumerProguardFiles "consumer-rules.pro"
@@ -30,11 +32,75 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    testImplementation 'junit:junit:4.13'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
-    implementation 'androidx.test.espresso:espresso-idling-resource:3.2.0'
-    implementation 'org.tensorflow:tensorflow-lite:2.2.0'
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.1.5'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
+    implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
+    implementation 'org.tensorflow:tensorflow-lite:2.14.0'
+}
+
+// Publishing configuration
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                // For Android libraries, we need to manually specify the artifacts
+                artifact bundleReleaseAar
+                
+                groupId = 'ir.mohammadnavabi'
+                artifactId = 'payment-card-scanner'
+                version = '1.2.0'
+                
+                pom {
+                    name = 'Payment Card Scanner'
+                    description = 'Android library for scanning and recognizing payment cards using TensorFlow Lite'
+                    url = 'https://github.com/mohamadnavabi/payment-card-scanner'
+                    
+                    licenses {
+                        license {
+                            name = 'MIT License'
+                            url = 'https://opensource.org/licenses/MIT'
+                        }
+                    }
+                    
+                    developers {
+                        developer {
+                            id = 'mohamadnavabi'
+                            name = 'Mohamad Navabi'
+                            email = 'm.navabifar@gmail.com'
+                        }
+                    }
+                    
+                    scm {
+                        connection = 'scm:git:git://github.com/mohamadnavabi/payment-card-scanner.git'
+                        developerConnection = 'scm:git:ssh://github.com:mohamadnavabi/payment-card-scanner.git'
+                        url = 'https://github.com/mohamadnavabi/payment-card-scanner'
+                    }
+                }
+            }
+        }
+        
+        repositories {
+            maven {
+                name = "GitHubPackages"
+                url = "https://maven.pkg.github.com/mohamadnavabi/payment-card-scanner"
+                credentials {
+                    username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+                    password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+                }
+            }
+        }
+    }
+    
+    signing {
+        def signingKey = findProperty("signing.keyId") ?: System.getenv("SIGNING_KEY_ID")
+        def signingPassword = findProperty("signing.password") ?: System.getenv("SIGNING_PASSWORD")
+        def signingKeyFile = findProperty("signing.secretKeyRingFile") ?: System.getenv("SIGNING_KEY_FILE")
+        
+        if (signingKey && signingPassword && signingKeyFile) {
+            sign publishing.publications.release
+        }
+    }
 }

@@ -10,7 +10,32 @@ To check stability and scan speed, check [STABILITY.md](./STABILITY.md) file.
 
 ## Installation
 
-Gradle:
+### GitHub Packages (Recommended)
+
+Add the repository to your project's `build.gradle`:
+
+```gradle
+repositories {
+    maven {
+        name = "GitHubPackages"
+        url = uri("https://maven.pkg.github.com/mohamadnavabi/payment-card-scanner")
+        credentials {
+            username = project.findProperty("gpr.user") ?: System.getenv("USERNAME")
+            password = project.findProperty("gpr.key") ?: System.getenv("TOKEN")
+        }
+    }
+}
+```
+
+Add the dependency:
+
+```gradle
+dependencies {
+    implementation 'ir.mohammadnavabi:payment-card-scanner:1.0.0'
+}
+```
+
+### JitPack (Alternative)
 
 ```
 dependencies {
@@ -18,14 +43,18 @@ dependencies {
 }
 ```
 
+> **Note**: For GitHub Packages, you'll need to configure your GitHub credentials. See [PUBLISHING.md](./PUBLISHING.md) for detailed setup instructions.
+
 ## How To Use
 
 (1) Start scanner activity and wait for result:
-``` 
+
+```
 ScanActivity.start(this);
 ```
 
 (2) Retrieve scanned data:
+
 ```java
 @Override
 protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -42,9 +71,11 @@ protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 - ##### {Debug Mode}
 
 Start scanner activity in debug mode:
-``` 
+
+```
 ScanActivity.startDebug(this);
 ```
+
 In this mode you will see a scanned preview while scanning.
 
 ## Contact me
@@ -52,7 +83,6 @@ In this mode you will see a scanned preview while scanning.
 If you have a better idea or way on this project, please let me know. Thanks :) ?:
 
 - [Email](mailto:navabifar@gmail.com)
-
 
 ---
 
