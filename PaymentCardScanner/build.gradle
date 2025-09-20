@@ -3,11 +3,12 @@ plugins {
 }
 
 android {
-    compileSdkVersion 32
+    namespace 'ir.mohammadnavabi.paymentcardscanner'
+    compileSdk 34
 
     defaultConfig {
         minSdkVersion 21
-        targetSdkVersion 32
+        targetSdk 34
         versionCode 1
         versionName "1.0"
 
