@@ -7,7 +7,7 @@
 
     <groupId>ir.mohammadnavabi</groupId>
     <artifactId>payment-card-scanner</artifactId>
-    <version>1.2.0</version>
+    <version>1.2.4</version>
     <packaging>jar</packaging>
 
     <name>Payment Card Scanner</name>
