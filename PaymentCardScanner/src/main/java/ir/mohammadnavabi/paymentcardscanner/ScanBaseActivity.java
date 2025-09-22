@@ -1,5 +1,6 @@
 package ir.mohammadnavabi.paymentcardscanner;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.RectF;
 import android.hardware.Camera;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.util.Log;
@@ -34,10 +36,12 @@ import java.util.concurrent.Semaphore;
 /**
  * Any classes that subclass this must:
  * <p>
- * (1) set mIsPermissionCheckDone after the permission check is done, which should be sometime
+ * (1) set mIsPermissionCheckDone after the permission check is done, which
+ * should be sometime
  * before "onResume" is called
  * <p>
- * (2) Call setViewIds to set these resource IDs and initalize appropriate handlers
+ * (2) Call setViewIds to set these resource IDs and initalize appropriate
+ * handlers
  */
 abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallback,
 		View.OnClickListener, OnScanListener, OnObjectListener, OnCameraOpenListener {
@@ -119,16 +123,23 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 			Overlay overlay = findViewById(overlayId);
 			overlay.setCircle(rect, radius);
 
-			ScanBaseActivity.this.mRoiCenterYRatio =
-					(xy[1] + view.getHeight() * 0.5f) / overlay.getHeight();
+			ScanBaseActivity.this.mRoiCenterYRatio = (xy[1] + view.getHeight() * 0.5f) / overlay.getHeight();
 		}
 	}
 
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+		Log.d("ScanBaseActivity", "onRequestPermissionsResult called - requestCode: " + requestCode);
+		if (grantResults.length > 0) {
+			Log.d("ScanBaseActivity", "Permission result: "
+					+ (grantResults[0] == PackageManager.PERMISSION_GRANTED ? "GRANTED" : "DENIED"));
+		}
+
 		if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+			Log.d("ScanBaseActivity", "Camera permission granted, setting mIsPermissionCheckDone = true");
 			mIsPermissionCheckDone = true;
 		} else {
+			Log.w("ScanBaseActivity", "Camera permission denied");
 			wasPermissionDenied = true;
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(this.denyPermissionMessage)
@@ -145,27 +156,64 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 
 	@Override
 	public void onCameraOpen(@Nullable Camera camera) {
+		Log.d("ScanBaseActivity", "onCameraOpen called with camera: " + (camera != null ? "SUCCESS" : "NULL"));
+		Log.d("ScanBaseActivity", "mIsActivityActive: " + mIsActivityActive);
+
 		if (camera == null) {
+			Log.e("ScanBaseActivity", "Camera is null, checking if we should retry...");
+
+			// Check if camera hardware is available
+			if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA)) {
+				Log.e("ScanBaseActivity", "No camera hardware available on this device");
+				Intent intent = new Intent();
+				intent.putExtra(RESULT_CAMERA_OPEN_ERROR, true);
+				setResult(RESULT_CANCELED, intent);
+				finish();
+				return;
+			}
+
+			// Check if camera permission is granted
+			if (android.os.Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+				if (checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED) {
+					Log.e("ScanBaseActivity", "Camera permission not granted");
+					Intent intent = new Intent();
+					intent.putExtra(RESULT_CAMERA_OPEN_ERROR, true);
+					setResult(RESULT_CANCELED, intent);
+					finish();
+					return;
+				}
+			}
+
+			Log.e("ScanBaseActivity", "Camera failed to open, closing activity with RESULT_CANCELED");
 			Intent intent = new Intent();
 			intent.putExtra(RESULT_CAMERA_OPEN_ERROR, true);
 			setResult(RESULT_CANCELED, intent);
 			finish();
 		} else if (!mIsActivityActive) {
+			Log.d("ScanBaseActivity", "Activity is not active, releasing camera");
 			camera.release();
 		} else {
+			Log.d("ScanBaseActivity", "Setting up camera preview");
 			mCamera = camera;
 			setCameraDisplayOrientation(this, Camera.CameraInfo.CAMERA_FACING_BACK,
 					mCamera);
 			// Create our Preview view and set it as the content of our activity.
 			CameraPreview cameraPreview = new CameraPreview(this, this);
 			FrameLayout preview = findViewById(mTextureId);
-			preview.addView(cameraPreview);
-			mCamera.setPreviewCallback(this);
+			if (preview != null) {
+				preview.addView(cameraPreview);
+				mCamera.setPreviewCallback(this);
+				Log.d("ScanBaseActivity", "Camera preview setup completed");
+			} else {
+				Log.e("ScanBaseActivity", "Preview FrameLayout is null, mTextureId: " + mTextureId);
+			}
 		}
 	}
 
-
 	protected void startCamera() {
+		Log.d("ScanBaseActivity", "startCamera() called");
+		Log.d("ScanBaseActivity", "mIsPermissionCheckDone: " + mIsPermissionCheckDone);
+
 		numberResults = new HashMap<>();
 		expiryResults = new HashMap<>();
 		firstResultMs = 0;
@@ -175,14 +223,21 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 
 		try {
 			if (mIsPermissionCheckDone) {
+				Log.d("ScanBaseActivity", "Permissions granted, starting camera");
 				if (mCameraThread == null) {
+					Log.d("ScanBaseActivity", "Creating new CameraThread");
 					mCameraThread = new CameraThread();
 					mCameraThread.start();
 				}
 
+				Log.d("ScanBaseActivity", "Requesting camera start");
 				mCameraThread.startCamera(this);
+			} else {
+				Log.w("ScanBaseActivity", "Camera permissions not granted yet");
 			}
 		} catch (Exception e) {
+			Log.e("ScanBaseActivity", "Exception in startCamera: " + e.getMessage());
+			e.printStackTrace();
 			AlertDialog.Builder builder = new AlertDialog.Builder(this);
 			builder.setMessage(R.string.busy_camera)
 					.setTitle(R.string.busy_camera_title);
@@ -213,6 +268,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 	@Override
 	protected void onResume() {
 		super.onResume();
+		Log.d("ScanBaseActivity", "onResume() called");
 
 		mIsActivityActive = true;
 		firstResultMs = 0;
@@ -227,9 +283,15 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 			findViewById(mExpiryId).setVisibility(View.INVISIBLE);
 		}
 
-		startCamera();
+		// Add a small delay to ensure the activity is fully resumed
+		findViewById(android.R.id.content).post(new Runnable() {
+			@Override
+			public void run() {
+				Log.d("ScanBaseActivity", "Starting camera after activity is fully resumed");
+				startCamera();
+			}
+		});
 	}
-
 
 	@Override
 	protected void onDestroy() {
@@ -237,7 +299,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 	}
 
 	public void setViewIds(int cardRectangleId, int overlayId, int textureId,
-						   int cardNumberId, int expiryId) {
+			int cardNumberId, int expiryId) {
 		mTextureId = textureId;
 		mCardNumberId = cardNumberId;
 		mExpiryId = expiryId;
@@ -246,15 +308,15 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 	}
 
 	public void orientationChanged(int orientation) {
-		if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN) return;
-		Camera.CameraInfo info =
-				new Camera.CameraInfo();
+		if (orientation == OrientationEventListener.ORIENTATION_UNKNOWN)
+			return;
+		Camera.CameraInfo info = new Camera.CameraInfo();
 		Camera.getCameraInfo(Camera.CameraInfo.CAMERA_FACING_BACK, info);
 		orientation = (orientation + 45) / 90 * 90;
 		int rotation;
 		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 			rotation = (info.orientation - orientation + 360) % 360;
-		} else {  // back-facing camera
+		} else { // back-facing camera
 			rotation = (info.orientation + orientation) % 360;
 		}
 
@@ -271,9 +333,8 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 	}
 
 	public void setCameraDisplayOrientation(Activity activity,
-											int cameraId, Camera camera) {
-		Camera.CameraInfo info =
-				new Camera.CameraInfo();
+			int cameraId, Camera camera) {
+		Camera.CameraInfo info = new Camera.CameraInfo();
 		Camera.getCameraInfo(cameraId, info);
 		int rotation = activity.getWindowManager().getDefaultDisplay()
 				.getRotation();
@@ -296,8 +357,8 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 		int result;
 		if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
 			result = (info.orientation + degrees) % 360;
-			result = (360 - result) % 360;  // compensate the mirror
-		} else {  // back-facing
+			result = (360 - result) % 360; // compensate the mirror
+		} else { // back-facing
 			result = (info.orientation - degrees + 360) % 360;
 		}
 		camera.setDisplayOrientation(result);
@@ -330,7 +391,8 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 
 			mPredictionStartMs = SystemClock.uptimeMillis();
 
-			// Use the application context here because the machine learning thread's lifecycle
+			// Use the application context here because the machine learning thread's
+			// lifecycle
 			// is connected to the application and not this activity
 			if (mIsOcr) {
 				mlThread.post(bytes, width, height, format, mRotation, this,
@@ -431,7 +493,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 		if (textView.getVisibility() != View.VISIBLE) {
 			textView.setVisibility(View.VISIBLE);
 			textView.setAlpha(0.0f);
-//			textView.animate().setDuration(errorCorrectionDurationMs / 2).alpha(1.0f);
+			// textView.animate().setDuration(errorCorrectionDurationMs / 2).alpha(1.0f);
 		}
 		textView.setText(value);
 	}
@@ -460,7 +522,7 @@ abstract class ScanBaseActivity extends Activity implements Camera.PreviewCallba
 
 	@Override
 	public void onPrediction(final String number, final Expiry expiry, final Bitmap bitmap,
-							 final List<DetectedBox> digitBoxes, final DetectedBox expiryBox) {
+			final List<DetectedBox> digitBoxes, final DetectedBox expiryBox) {
 		if (!mSentResponse && mIsActivityActive) {
 			if (number != null && firstResultMs == 0) {
 				firstResultMs = SystemClock.uptimeMillis();
