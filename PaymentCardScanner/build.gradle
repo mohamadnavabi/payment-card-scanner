@@ -39,6 +39,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
     implementation 'androidx.test.espresso:espresso-idling-resource:3.5.1'
     implementation 'org.tensorflow:tensorflow-lite:2.14.0'
+    implementation 'org.tensorflow:tensorflow-lite-support:0.4.4'
 }
 
 // Publishing configuration
